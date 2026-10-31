@@ -1,8 +1,12 @@
 package com.felipe.agendadecontatos.views
 
+import android.annotation.SuppressLint
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
@@ -19,13 +23,39 @@ import com.felipe.agendadecontatos.ui.theme.PURPLE_500
 import com.felipe.agendadecontatos.ui.theme.WHITE
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
+import com.felipe.agendadecontatos.AppDatabase
+import com.felipe.agendadecontatos.dao.ContatoDao
+import com.felipe.agendadecontatos.itemlista.ContatoItem
+import com.felipe.agendadecontatos.model.Contato
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
-
+private lateinit var contatoDao: ContatoDao
+@SuppressLint("CoroutineCreationDuringComposition")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ListaContatos( NavController: NavController){
+    val listaContatos by remember() { mutableStateOf<MutableList<Contato>>(mutableListOf()) }
+    val scope = rememberCoroutineScope()
+    val context = LocalContext.current
+
+    scope.launch(Dispatchers.IO){
+        contatoDao = AppDatabase.getInstance(context).contatoDao()
+        val contato = contatoDao.getContatos()
+        for(contatos in contato){
+            listaContatos.add(contatos)
+        }
+
+    }
     Scaffold(
         topBar = {
             TopAppBar(
@@ -50,8 +80,14 @@ fun ListaContatos( NavController: NavController){
         }
     ) {paddingValues ->
         Column(
-            modifier = Modifier.fillMaxSize().padding(paddingValues)
-        ) { }
+            modifier = Modifier.fillMaxSize().padding(paddingValues).background(Color.LightGray)
+        ) {
+            LazyColumn() {
+                itemsIndexed(listaContatos){_, contato ->
+                    ContatoItem(contato = contato)
+                }
+            }
+        }
 
     }
 
