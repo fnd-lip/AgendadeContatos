@@ -1,5 +1,6 @@
 package com.felipe.agendadecontatos.views
 
+import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -18,19 +19,36 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.felipe.agendadecontatos.AppDatabase
 import com.felipe.agendadecontatos.componentes.Botao
 import com.felipe.agendadecontatos.componentes.OutlinedTextFieldCustom
+import com.felipe.agendadecontatos.dao.ContatoDao
+import com.felipe.agendadecontatos.model.Contato
 import com.felipe.agendadecontatos.ui.theme.PURPLE_500
 import com.felipe.agendadecontatos.ui.theme.WHITE
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+
+private lateinit var contatoDao: ContatoDao
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SalvarContato(){
+    var nome by remember { mutableStateOf(value = "") }
+    var sobrenome by remember { mutableStateOf(value = "") }
+    var idade by remember { mutableStateOf(value = "") }
+    var celular by remember { mutableStateOf(value = "") }
+    var mensagem by remember { mutableStateOf(value = false) }
+
+    var scope = rememberCoroutineScope()
+    var context = LocalContext.current
     Scaffold(
         topBar = {
             TopAppBar(
@@ -42,10 +60,7 @@ fun SalvarContato(){
             )
         }
     ) { paddingValues ->
-        var nome by remember { mutableStateOf(value = "") }
-        var sobrenome by remember { mutableStateOf(value = "") }
-        var idade by remember { mutableStateOf(value = "") }
-        var celular by remember { mutableStateOf(value = "") }
+
         Column(
             modifier = Modifier.fillMaxSize().padding(paddingValues).verticalScroll(
                 rememberScrollState()
@@ -90,7 +105,26 @@ fun SalvarContato(){
                 modifier = Modifier.fillMaxWidth().padding(start = 20.dp, top = 0.dp, end = 20.dp, bottom = 10.dp)
             )
             Botao(
-                onClick = { },
+                onClick = {
+                    scope.launch(Dispatchers.IO){
+                        if(nome.isEmpty() || sobrenome.isEmpty() || idade.isEmpty() || celular.isEmpty()){
+                            mensagem = false
+                        }else {
+                            mensagem = true
+                            val contato = Contato(nome = nome, sobrenome = sobrenome, idade = idade, celular = celular)
+                            contatoDao = AppDatabase.getInstance(context).contatoDao()
+                            contatoDao.gravar(contato)
+
+                        }
+                    }
+                    scope.launch(Dispatchers.Main){
+                        if (mensagem){
+                            Toast.makeText(context, "Sucesso ao salvar o contato", Toast.LENGTH_SHORT).show()
+                        }else {
+                            Toast.makeText(context, "Preencha todos os campos!", Toast.LENGTH_SHORT).show()
+                        }
+                    }
+                },
                 texto = "Salvar"
             )
         }
