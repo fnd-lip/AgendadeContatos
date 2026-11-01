@@ -1,5 +1,6 @@
 package com.felipe.agendadecontatos.views
 
+import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -18,19 +19,46 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
+import com.felipe.agendadecontatos.AppDatabase
 import com.felipe.agendadecontatos.componentes.Botao
 import com.felipe.agendadecontatos.componentes.OutlinedTextFieldCustom
+import com.felipe.agendadecontatos.dao.ContatoDao
+import com.felipe.agendadecontatos.model.Contato
 import com.felipe.agendadecontatos.ui.theme.PURPLE_500
 import com.felipe.agendadecontatos.ui.theme.WHITE
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+
+private lateinit var contatoDao: ContatoDao
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun AtualizarContato(){
+fun AtualizarContato(
+    navController: NavController,
+    uid: String,
+    nome: String,
+    sobrenome: String,
+    idade: String,
+    celular: String
+
+){
+    val scope = rememberCoroutineScope()
+    val context = LocalContext.current
+    var novoNome by remember { mutableStateOf(value = nome) }
+    var novoSobrenome by remember { mutableStateOf(value = sobrenome) }
+    var novaIdade by remember { mutableStateOf(value = idade) }
+    var novoCelular by remember { mutableStateOf(value = celular) }
+    var mensagem by remember { mutableStateOf(value = false) }
+
     Scaffold(
         topBar = {
             TopAppBar(
@@ -42,10 +70,7 @@ fun AtualizarContato(){
             )
         }
     ) { paddingValues ->
-        var nome by remember { mutableStateOf(value = "") }
-        var sobrenome by remember { mutableStateOf(value = "") }
-        var idade by remember { mutableStateOf(value = "") }
-        var celular by remember { mutableStateOf(value = "") }
+
         Column(
             modifier = Modifier.fillMaxSize().padding(paddingValues).verticalScroll(
                 rememberScrollState()
@@ -54,8 +79,8 @@ fun AtualizarContato(){
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             OutlinedTextFieldCustom(
-                value = nome,
-                onValueChange = {nome = it},
+                value = novoNome,
+                onValueChange = {novoNome = it},
                 label = { Text(text = "Nome") },
                 keyboardOptions = KeyboardOptions(
                     keyboardType = KeyboardType.Text
@@ -63,8 +88,8 @@ fun AtualizarContato(){
                 modifier = Modifier.fillMaxWidth().padding(start = 20.dp, top = 0.dp, end = 20.dp, bottom = 10.dp)
             )
             OutlinedTextFieldCustom(
-                value = sobrenome,
-                onValueChange = {sobrenome = it},
+                value = novoSobrenome,
+                onValueChange = {novoSobrenome = it},
                 label = { Text(text = "Sobrenome") },
                 keyboardOptions = KeyboardOptions(
                     keyboardType = KeyboardType.Text
@@ -72,8 +97,8 @@ fun AtualizarContato(){
                 modifier = Modifier.fillMaxWidth().padding(start = 20.dp, top = 0.dp, end = 20.dp, bottom = 10.dp)
             )
             OutlinedTextFieldCustom(
-                value = idade,
-                onValueChange = {idade = it},
+                value = novaIdade,
+                onValueChange = {novaIdade = it},
                 label = { Text(text = "Idade") },
                 keyboardOptions = KeyboardOptions(
                     keyboardType = KeyboardType.Number
@@ -81,8 +106,8 @@ fun AtualizarContato(){
                 modifier = Modifier.fillMaxWidth().padding(start = 20.dp, top = 0.dp, end = 20.dp, bottom = 10.dp)
             )
             OutlinedTextFieldCustom(
-                value = celular,
-                onValueChange = {celular = it},
+                value = novoCelular,
+                onValueChange = {novoCelular = it},
                 label = { Text(text = "Celular") },
                 keyboardOptions = KeyboardOptions(
                     keyboardType = KeyboardType.Phone
@@ -90,7 +115,24 @@ fun AtualizarContato(){
                 modifier = Modifier.fillMaxWidth().padding(start = 20.dp, top = 0.dp, end = 20.dp, bottom = 10.dp)
             )
             Botao(
-                onClick = { },
+                onClick = {
+                    scope.launch(Dispatchers.IO){
+                        if(novoNome.isEmpty() || novoSobrenome.isEmpty() || novaIdade.isEmpty() || novoCelular.isEmpty()){
+                            mensagem = false
+                        }else {
+                            mensagem = true
+                            contatoDao = AppDatabase.getInstance(context).contatoDao()
+                            contatoDao.atualizar(id = uid.toInt(), novoNome = novoNome, novoSobrenome = novoSobrenome, novaIdade = novaIdade, novoCelular = novoCelular)
+                        }
+                    }
+                    scope.launch(Dispatchers.Main){
+                        if (mensagem){
+                            Toast.makeText(context, "Sucesso ao atualizar os dados", Toast.LENGTH_SHORT).show()
+                        }else {
+                            Toast.makeText(context, "Preencha todos os campos!", Toast.LENGTH_SHORT).show()
+                        }
+                    }
+                },
                 texto = "Atualizar"
             )
         }
@@ -101,5 +143,13 @@ fun AtualizarContato(){
 @Preview
 @Composable
 private fun AtualizarContatoPreview(){
-    AtualizarContato()
+    AtualizarContato(
+        navController = rememberNavController(),
+        uid = "1",
+        nome = "Felipe",
+        sobrenome = "Barbosa",
+        idade = "30",
+        celular = "93939932"
+
+    )
 }

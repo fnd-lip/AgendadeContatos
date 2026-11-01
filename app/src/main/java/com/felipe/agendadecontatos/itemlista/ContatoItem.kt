@@ -22,11 +22,14 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
 import com.felipe.agendadecontatos.model.Contato
 import com.felipe.agendadecontatos.ui.theme.WHITE
 
 @Composable
-fun ContatoItem(contato: Contato){
+fun ContatoItem(contato: Contato, navController: NavController){
+    val uid = contato.uid
     Card(
         modifier = Modifier.fillMaxWidth().padding(10.dp),
         colors = CardDefaults.cardColors(
@@ -57,7 +60,9 @@ fun ContatoItem(contato: Contato){
                 horizontalArrangement = Arrangement.End
             ) {
                 IconButton(
-                    onClick = {}
+                    onClick = {
+                        navController.navigate(route = "atualizarContato/$uid/${contato.nome}/${contato.sobrenome}/${contato.idade}/${contato.celular}")
+                    }
                 ) {
                     Icon(
                         imageVector = Icons.Default.Edit,
@@ -85,5 +90,7 @@ fun ContatoItem(contato: Contato){
 @Preview
 @Composable
 private fun ContatoItemPreview(){
-    ContatoItem(contato = Contato(nome = "Felipe", sobrenome = "Barbosa", idade = "29", celular = "929299299"))
+    ContatoItem(contato = Contato(nome = "Felipe", sobrenome = "Barbosa", idade = "29", celular = "929299299"),
+        navController = rememberNavController()
+    )
 }

@@ -43,7 +43,7 @@ private lateinit var contatoDao: ContatoDao
 @SuppressLint("CoroutineCreationDuringComposition")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ListaContatos( NavController: NavController){
+fun ListaContatos( navController: NavController){
     val listaContatos by remember() { mutableStateOf<MutableList<Contato>>(mutableListOf()) }
     val scope = rememberCoroutineScope()
     val context = LocalContext.current
@@ -66,7 +66,7 @@ fun ListaContatos( NavController: NavController){
         floatingActionButton = {
             FloatingActionButton(
                 onClick = {
-                    NavController.navigate("salvarContato")
+                    navController.navigate("salvarContato")
                 },
                 containerColor = PURPLE_500,
                 contentColor = WHITE,
@@ -84,7 +84,7 @@ fun ListaContatos( NavController: NavController){
         ) {
             LazyColumn() {
                 itemsIndexed(listaContatos){_, contato ->
-                    ContatoItem(contato = contato)
+                    ContatoItem(contato, navController )
                 }
             }
         }
@@ -96,5 +96,5 @@ fun ListaContatos( NavController: NavController){
 @Preview
 @Composable
 fun ListaContatosPreview(){
-    ListaContatos(NavController = rememberNavController())
+    ListaContatos(navController = rememberNavController())
 }

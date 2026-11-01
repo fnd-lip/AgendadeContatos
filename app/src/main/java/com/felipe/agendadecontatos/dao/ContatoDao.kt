@@ -13,4 +13,7 @@ interface ContatoDao {
     @Query(value = "SELECT * FROM tabela_contatos ORDER BY nome ASC")
     fun getContatos(): MutableList<Contato>
 
+    @Query(value = "UPDATE tabela_contatos SET nome = :novoNome, sobrenome = :novoSobrenome, idade = :novaIdade, celular =:novoCelular " + "WHERE uid = :id")
+    fun atualizar(id:Int, novoNome: String, novoSobrenome: String, novaIdade: String, novoCelular: String)
+
 }
