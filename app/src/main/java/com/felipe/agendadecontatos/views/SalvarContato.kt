@@ -27,6 +27,8 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
 import com.felipe.agendadecontatos.AppDatabase
 import com.felipe.agendadecontatos.componentes.Botao
 import com.felipe.agendadecontatos.componentes.OutlinedTextFieldCustom
@@ -40,7 +42,9 @@ import kotlinx.coroutines.launch
 private lateinit var contatoDao: ContatoDao
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SalvarContato(){
+fun SalvarContato(
+    navController: NavController
+){
     var nome by remember { mutableStateOf(value = "") }
     var sobrenome by remember { mutableStateOf(value = "") }
     var idade by remember { mutableStateOf(value = "") }
@@ -120,6 +124,7 @@ fun SalvarContato(){
                     scope.launch(Dispatchers.Main){
                         if (mensagem){
                             Toast.makeText(context, "Sucesso ao salvar o contato", Toast.LENGTH_SHORT).show()
+                            navController.popBackStack()
                         }else {
                             Toast.makeText(context, "Preencha todos os campos!", Toast.LENGTH_SHORT).show()
                         }
@@ -135,5 +140,5 @@ fun SalvarContato(){
 @Preview
 @Composable
 private fun SalvarContatoPreview(){
-    SalvarContato()
+    SalvarContato(navController = rememberNavController())
 }

@@ -27,7 +27,7 @@ class MainActivity : ComponentActivity() {
                     ListaContatos(navController = navController)
                 }
                 composable("salvarContato"){
-                    SalvarContato()
+                    SalvarContato(navController)
                 }
                 composable("atualizarContato/{uid}/{nome}/{sobrenome}/{idade}/{celular}",
                     arguments = listOf(

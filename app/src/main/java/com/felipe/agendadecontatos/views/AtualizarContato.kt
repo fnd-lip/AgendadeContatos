@@ -128,6 +128,7 @@ fun AtualizarContato(
                     scope.launch(Dispatchers.Main){
                         if (mensagem){
                             Toast.makeText(context, "Sucesso ao atualizar os dados", Toast.LENGTH_SHORT).show()
+                            navController.popBackStack()
                         }else {
                             Toast.makeText(context, "Preencha todos os campos!", Toast.LENGTH_SHORT).show()
                         }

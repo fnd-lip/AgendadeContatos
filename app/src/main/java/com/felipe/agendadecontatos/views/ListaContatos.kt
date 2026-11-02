@@ -83,8 +83,8 @@ fun ListaContatos( navController: NavController){
             modifier = Modifier.fillMaxSize().padding(paddingValues).background(Color.LightGray)
         ) {
             LazyColumn() {
-                itemsIndexed(listaContatos){_, contato ->
-                    ContatoItem(contato, navController )
+                itemsIndexed(listaContatos){positon, contato ->
+                    ContatoItem(contato, listaContatos,positon, navController )
                 }
             }
         }
